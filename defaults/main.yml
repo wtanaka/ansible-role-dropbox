@@ -1,0 +1,3 @@
+---
+dropbox_version: "2015.10.28"
+dropbox_tmp_deb: "/tmp/dropbox_{{dropbox_version}}.deb"
