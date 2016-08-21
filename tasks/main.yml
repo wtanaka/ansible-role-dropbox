@@ -35,3 +35,16 @@
   sudo: true
   command: gdebi --non-interactive {{dropbox_tmp_deb}}
   when: check_dropbox.rc == 1
+
+- name: Increase max_user_watches
+  sudo: true
+  lineinfile: >
+    dest=/etc/sysctl.conf
+    line=fs.inotify.max_user_watches=100000
+    regexp=^.*fs.inotify.max_user_watches=
+  register: sysctl_result
+
+- name: refresh sysctl
+  sudo: true
+  command: sysctl -p
+  when: sysctl_result.changed
