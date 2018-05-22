@@ -1,0 +1,12 @@
+---
+- name: Increase max_user_watches
+  lineinfile: >
+    dest=/etc/sysctl.conf
+    line=fs.inotify.max_user_watches=100000
+    regexp=^.*fs.inotify.max_user_watches=
+  register: sysctl_result
+  when: should_run
+
+- name: refresh sysctl
+  command: sysctl -p
+  when: should_run and sysctl_result.changed

@@ -1,3 +1,6 @@
 ---
-dropbox_version: "2015.10.28"
+dropbox_should_shortcircuit: True
 dropbox_tmp_deb: "/tmp/dropbox_{{dropbox_version}}.deb"
+dropbox_version: "2015.10.28"
+gdebi_package_files:
+- "{{dropbox_tmp_deb}}"
