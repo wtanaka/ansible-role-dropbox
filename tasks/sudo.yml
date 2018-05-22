@@ -1,0 +1,4 @@
+---
+- include: compat_sudo.yml
+- include: gdebi_sudo.yml
+- include: max_user_watches_sudo.yml

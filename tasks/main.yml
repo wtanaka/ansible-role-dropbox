@@ -1,50 +1,18 @@
 ---
-- include: compat.yml
+- name: check for short-circuit
+  raw: "> /dev/null command -v dropbox;"
+  register: installed
+  ignore_errors: True
+  changed_when: False
 
-# Update APT configuration
-- name: add universe repository
-  apt_repository: >
-    repo="deb http://archive.ubuntu.com/ubuntu {{ansible_lsb.codename|lower}} universe"
-    state=present
-  register: universe_result
-  sudo: yes
-
-# Download keys and package lists
-- name: apt-get update
-  apt: update_cache=yes cache_valid_time=0
-  sudo: yes
-  when: universe_result.changed
-
-- name: install gdebi
-  apt: name=gdebi
-  sudo: yes
-
-- name: Check if dropbox is installed
-  command: dpkg-query -W dropbox
-  register: check_dropbox
-  failed_when: false
-  changed_when: false
+- name: set should_run fact
+  set_fact:
+    should_run: "{{installed|failed or not dropbox_should_shortcircuit}}"
 
 - name: Download Ubuntu dropbox package
   command: wget -O {{dropbox_tmp_deb}} {{dropbox_url_ubuntu_deb}}
   args:
     creates: "{{dropbox_tmp_deb}}"
-  when: check_dropbox.rc == 1
+  when: should_run
 
-- name: Install Ubuntu dropbox package
-  sudo: true
-  command: gdebi --non-interactive {{dropbox_tmp_deb}}
-  when: check_dropbox.rc == 1
-
-- name: Increase max_user_watches
-  sudo: true
-  lineinfile: >
-    dest=/etc/sysctl.conf
-    line=fs.inotify.max_user_watches=100000
-    regexp=^.*fs.inotify.max_user_watches=
-  register: sysctl_result
-
-- name: refresh sysctl
-  sudo: true
-  command: sysctl -p
-  when: sysctl_result.changed
+- include: sudoorbecome.yml
